@@ -20,9 +20,9 @@ Address parseAddress(String address) {
 String calculateNewAddress(String currentAddress, int verticalMovementSpeed,
     int horizontalMovementSpeed) {
   final parsedAddress = parseAddress(currentAddress);
+
   final newHorizontalAddress =
       parsedAddress.horizontalAddress + horizontalMovementSpeed;
-
   final newVerticalAddress =
       parsedAddress.verticalAddress + verticalMovementSpeed;
 

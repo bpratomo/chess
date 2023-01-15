@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:chess/models/piece.dart';
 import 'package:flutter/material.dart';
-import 'package:chess/models/traversals.dart';
+import 'package:chess/models/movement/traversals.dart';
 
 class Positions extends ChangeNotifier {
   Positions() : _positionToPieces = startingPosition;

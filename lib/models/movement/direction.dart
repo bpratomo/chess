@@ -14,30 +14,10 @@ class Direction {
       this.horizontalMovementSpeed,
       this.verticalMovementSpeed);
 
-bool defaultIsLegalMove(String address, Map<String, Piece?> positionToPieces,
-      Piece pieceBeingConsidered) {
-    final piece = positionToPieces[address];
-    if (piece == null) return true;
-    if (piece.color == pieceBeingConsidered.color) return false;
-    return true;
-  }
-
-bool defaultShouldContinue(
-      ) {
-
-      return  false;
-
-  } 
-
-  Direction move(){
-  final copy = this;
-  copy.traversalDistance -=1;
-  return copy;
-  }
-
-  Direction.standard(horizontalMovementSpeed, verticalMovementSpeed){
-    return  Direction(defaultIsLegalMove, defaultShouldContinue, 999, horizontalMovementSpeed, verticalMovementSpeed)
-
+  Direction move() {
+    final copy = this;
+    copy.traversalDistance -= 1;
+    return copy;
   }
 }
 
@@ -50,14 +30,9 @@ class DirectionFactory {
     return true;
   }
 
-  bool defaultShouldContinue(
-      String address, Map<String, Piece?> positionToPieces) {
-
+  bool defaultShouldContinue(int traversalDistance) {
+    return traversalDistance > 0;
   }
-
-  DirectionFactory();
-
-  final dirFactory = DirectionFactory();
 
   Direction defaultMethod(
       int horizontalMovementSpeed, int verticalMovementSpeed) {
