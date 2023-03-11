@@ -1,31 +1,32 @@
 import 'package:chess/models/grid.dart';
 import 'package:chess/models/positions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 
-class Board extends StatelessWidget {
-  const Board({super.key});
+class BoardRenderer extends StatelessWidget {
+  const BoardRenderer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Positions>(
-        builder: (context, positions, child) => buildBoard(positions),
+    return Consumer<Board>(
+        builder: (context, positions, child) => renderBoard(positions),
         child: const Text('building board...'));
   }
 }
 
-Widget buildBoard(Positions pos) {
+Widget renderBoard(Board pos) {
   const horizontal = 'abcdefgh';
   const vertical = '87654321';
-  var startingColor = 'light';
+  var rowStartingColor = 'light';
   var rowList = <Widget>[];
   List<Grid> gridList;
 
+// Each loop here adds a row to construct a full board
   for (final number in vertical.split('')) {
-    var color = startingColor;
+    var color = rowStartingColor;
     gridList = [];
+
+// Each loop adds a grid to construct a full row
     for (final letter in horizontal.split('')) {
       final address = '$letter$number';
       final piece = pos.positionToPieces[address];
@@ -34,11 +35,13 @@ Widget buildBoard(Positions pos) {
 
       color = color == 'dark' ? 'light' : 'dark';
     }
+
     final row = Expanded(
       child: Row(children: gridList),
     );
+
     rowList.add(row);
-    startingColor = startingColor == 'dark' ? 'light' : 'dark';
+    rowStartingColor = rowStartingColor == 'dark' ? 'light' : 'dark';
   }
 
   return AspectRatio(

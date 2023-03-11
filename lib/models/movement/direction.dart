@@ -1,60 +1,74 @@
 import 'package:chess/models/piece.dart';
 
-class Direction {
+class Vector {
   final Function isLegalMove;
-  final Function shouldContinueTraversal;
-  var traversalDistance;
+  final Function shouldContinue;
+  int remainingTraversal;
   final int horizontalMovementSpeed;
   final int verticalMovementSpeed;
 
-  Direction(
-      this.isLegalMove,
-      this.shouldContinueTraversal,
-      this.traversalDistance,
-      this.horizontalMovementSpeed,
-      this.verticalMovementSpeed);
+  Vector(
+    this.isLegalMove,
+    this.shouldContinue,
+    this.remainingTraversal,
+    this.horizontalMovementSpeed,
+    this.verticalMovementSpeed,
+  );
 
-  Direction move() {
+  Vector move() {
     final copy = this;
-    copy.traversalDistance -= 1;
+    copy.remainingTraversal -= 1;
     return copy;
   }
 }
 
-class DirectionFactory {
-  bool defaultIsLegalMove(String address, Map<String, Piece?> positionToPieces,
-      Piece pieceBeingConsidered) {
-    final piece = positionToPieces[address];
-    if (piece == null) return true;
-    if (piece.color == pieceBeingConsidered.color) return false;
+class VectorFactory {
+  bool defaultIsLegalMoveCallback(
+    String currentAddress,
+    String nextAddress,
+    Map<String, Piece?> positionToPieces,
+    Piece pieceBeingConsidered,
+    Vector vector,
+  ) {
+    final targetPiece = positionToPieces[nextAddress];
+    if (targetPiece == null) return true;
+    if (targetPiece.color == pieceBeingConsidered.color) return false;
     return true;
   }
 
-  bool defaultShouldContinue(int traversalDistance) {
+  bool defaultShouldContinueCallback(int traversalDistance) {
     return traversalDistance > 0;
   }
 
-  Direction defaultMethod(
-      int horizontalMovementSpeed, int verticalMovementSpeed) {
-    return Direction(defaultIsLegalMove, defaultShouldContinue, 999,
-        horizontalMovementSpeed, verticalMovementSpeed);
+  Vector defaultMethod(
+    int horizontalMovementSpeed,
+    int verticalMovementSpeed, {
+    int traversalDistance = 999,
+  }) {
+    return Vector(
+      defaultIsLegalMoveCallback,
+      defaultShouldContinueCallback,
+      traversalDistance,
+      horizontalMovementSpeed,
+      verticalMovementSpeed,
+    );
   }
 
-  Direction get south => defaultMethod(0, -1);
-  Direction get north => defaultMethod(0, 1);
-  Direction get west => defaultMethod(-1, 0);
-  Direction get east => defaultMethod(1, 0);
-  Direction get northWest => defaultMethod(-1, 1);
-  Direction get northEast => defaultMethod(1, 1);
-  Direction get southWest => defaultMethod(-1, -1);
-  Direction get southEast => defaultMethod(-1, -1);
+  Vector get south => defaultMethod(0, -1);
+  Vector get north => defaultMethod(0, 1);
+  Vector get west => defaultMethod(-1, 0);
+  Vector get east => defaultMethod(1, 0);
+  Vector get northWest => defaultMethod(-1, 1);
+  Vector get northEast => defaultMethod(1, 1);
+  Vector get southWest => defaultMethod(-1, -1);
+  Vector get southEast => defaultMethod(-1, -1);
 
-  Direction get knightNNW => defaultMethod(-1, 2);
-  Direction get knightNWW => defaultMethod(-2, 1);
-  Direction get knightNNE => defaultMethod(1, 2);
-  Direction get knightNEE => defaultMethod(2, 1);
-  Direction get knightSSW => defaultMethod(-1, -2);
-  Direction get knightSWW => defaultMethod(-2, -1);
-  Direction get knightSSE => defaultMethod(1, -2);
-  Direction get knightSEE => defaultMethod(2, -1);
+  Vector get knightNNW => defaultMethod(-1, 2, traversalDistance: 1);
+  Vector get knightNWW => defaultMethod(-2, 1, traversalDistance: 1);
+  Vector get knightNNE => defaultMethod(1, 2, traversalDistance: 1);
+  Vector get knightNEE => defaultMethod(2, 1, traversalDistance: 1);
+  Vector get knightSSW => defaultMethod(-1, -2, traversalDistance: 1);
+  Vector get knightSWW => defaultMethod(-2, -1, traversalDistance: 1);
+  Vector get knightSSE => defaultMethod(1, -2, traversalDistance: 1);
+  Vector get knightSEE => defaultMethod(2, -1, traversalDistance: 1);
 }

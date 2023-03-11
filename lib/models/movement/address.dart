@@ -17,7 +17,7 @@ Address parseAddress(String address) {
   return Address(horizontalAddress, verticalAddress);
 }
 
-String calculateNewAddress(String currentAddress, int verticalMovementSpeed,
+String calculateNextAddress(String currentAddress, int verticalMovementSpeed,
     int horizontalMovementSpeed) {
   final parsedAddress = parseAddress(currentAddress);
 
@@ -33,6 +33,8 @@ String calculateNewAddress(String currentAddress, int verticalMovementSpeed,
 }
 
 bool isAddressValid(String address) {
+  if (address.contains('null')) return false;
+
   final parsedAddress = parseAddress(address);
   final isAddressTooHigh =
       max(parsedAddress.horizontalAddress, parsedAddress.verticalAddress) > 8;

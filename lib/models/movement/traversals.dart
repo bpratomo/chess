@@ -3,80 +3,60 @@ import 'package:chess/models/movement/direction.dart';
 import 'package:chess/models/movement/address.dart';
 import 'package:chess/models/movement/strategy.dart';
 
-bool checkMoveLegality(String address, Function directionIsLegalCallback,
-    Map<String, Piece?> positionToPieces, pieceBeingConsidered) {
-  if (address.contains('null')) return false;
-
-  final isAddressValidResult = isAddressValid(address);
-  final isDirectionLegal =
-      directionIsLegalCallback(address, positionToPieces, pieceBeingConsidered);
-
-  print(
-      'isAddressValidResult $isAddressValidResult & isDirectionLegal $isDirectionLegal');
-
-  return isAddressValid(address) &&
-      directionIsLegalCallback(address, positionToPieces, pieceBeingConsidered);
-}
-
 class Traversals {
-  static Map<String, bool> generatePathways(String address,
+  static Map<String, bool> generateLegalMoves(String address,
       Piece pieceBeingConsidered, Map<String, Piece?> positionToPieces) {
-    print('starting pathway generation for ${pieceBeingConsidered.unit}');
-    final strategy = strategyMap[pieceBeingConsidered.unit];
+    Map<String, bool> generatedLegalMoves = {};
+    final strategy = pieceBeingConsidered.strategy;
     if (strategy == null) {
-      throw 'invalid piece!';
+      throw 'missing strategy for piece $pieceBeingConsidered';
     }
-
-    Map<String, bool> generatedPathways = {};
 
     for (final direction in strategy.vectors) {
-      print('=====================================================');
-      final directionPathways = _iter(direction, address, positionToPieces, {},
+      final legalMoves = _iter(direction, address, positionToPieces, {},
           pieceBeingConsidered, strategy);
-      generatedPathways.addAll(directionPathways);
 
-      print('=====================================================');
+      generatedLegalMoves.addAll(legalMoves);
     }
-    print('generatedPathways is $generatedPathways');
 
-    return generatedPathways;
+    return generatedLegalMoves;
   }
 
   static Map<String, bool> _iter(
-      Direction direction,
+      Vector vector,
       String currentAddress,
       Map<String, Piece?> positionToPieces,
       Map<String, bool> traversed,
       Piece pieceBeingConsidered,
       PieceStrategy strategy) {
-    print(
-        'running iter with traversed $traversed and directions ${direction.verticalMovementSpeed}');
-
-    print(
-        'retrieving horizontal address for ${currentAddress.substring(0, 1)} ');
-
 // Calculate updated traversal map, if move to be taken
-    final newAddress = calculateNewAddress(currentAddress,
-        direction.verticalMovementSpeed, direction.horizontalMovementSpeed);
-    print('retrieved new address is $newAddress');
+    final nextAddress = calculateNextAddress(
+      currentAddress,
+      vector.verticalMovementSpeed,
+      vector.horizontalMovementSpeed,
+    );
 
 // Assess which traversal map to return
 //Case 1: if move is not legal, then stop and return previous traversals
-    final isMoveLegal = checkMoveLegality(newAddress, direction.isLegalMove,
-        positionToPieces, pieceBeingConsidered);
-    print('isMoveLegal $isMoveLegal');
-    if (!isMoveLegal) return traversed;
-
+    if (!isAddressValid(nextAddress)) return traversed;
+    if (!vector.isLegalMove(
+      currentAddress,
+      nextAddress,
+      positionToPieces,
+      pieceBeingConsidered,
+      vector,
+    )) {
+      return traversed;
+    }
 //Case 2: if move legal, but should stop anyway, return updated traversal and stop
-    final newTraversed = traversed;
-    newTraversed[newAddress] = true;
-    final isShouldContinue =
-        direction.shouldContinueTraversal(direction.traversalDistance);
+    final updatedTraversal = traversed;
+    updatedTraversal[nextAddress] = true;
+    final shouldContinue = vector.shouldContinue(vector.remainingTraversal);
 
-    if (!isShouldContinue) return newTraversed;
+    if (!shouldContinue) return updatedTraversal;
 
 //Case 3: if everything should continue, then continue recursion
-    return _iter(direction.move(), newAddress, positionToPieces, newTraversed,
+    return _iter(vector.move(), nextAddress, positionToPieces, updatedTraversal,
         pieceBeingConsidered, strategy);
   }
 }

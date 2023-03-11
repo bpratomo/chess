@@ -4,56 +4,74 @@ import 'package:chess/models/piece.dart';
 import 'package:flutter/material.dart';
 import 'package:chess/models/movement/traversals.dart';
 
-class Positions extends ChangeNotifier {
-  Positions() : _positionToPieces = startingPosition;
+class Board extends ChangeNotifier {
+  Board() : _positionToPieces = startingPosition;
 
-  Map<String, Piece?> _positionToPieces;
+  // Various position related utility functions
+  final Map<String, Piece?> _positionToPieces;
 
   UnmodifiableMapView<String, Piece?> get positionToPieces =>
       UnmodifiableMapView(_positionToPieces);
+
+  Map<String, bool> _legalMoves = {};
+
+  UnmodifiableMapView<String, bool> get legalMoves =>
+      UnmodifiableMapView(_legalMoves);
+
+  String _positionBeingConsidered = '';
+  bool get isAPositionBeingConsidered => _positionBeingConsidered != '';
+
+// Logic to search possible moves
+  void considerPosition(String address, Piece piece) {
+    _positionBeingConsidered = address;
+    _legalMoves =
+        Traversals.generateLegalMoves(address, piece, positionToPieces);
+    notifyListeners();
+  }
+
+// Logic to modify internal states
   void movePiece(String movement) {
     final previousPosition = movement.substring(0, 2);
     final targetPosition = movement.substring(2);
     final piece = positionToPieces[previousPosition];
-    _positionToPieces[previousPosition] = null;
+    _positionToPieces[previousPosition] = EmptyPiece();
     _positionToPieces[targetPosition] = piece;
-    _positionToHighlights = {};
+    _legalMoves = {};
     notifyListeners();
   }
 
-  String _positionBeingConsidered = '';
-  Map<String, bool> _positionToHighlights = {};
-  UnmodifiableMapView<String, bool> get positionToHighlights =>
-      UnmodifiableMapView(_positionToHighlights);
-
-  void considerPosition(String address, Piece piece) {
-    _positionToHighlights =
-        Traversals.generatePathways(address, piece, positionToPieces);
-    notifyListeners();
-  }
-
+// Entry point of user interaction
   void clickHandler(String address) {
     final piece = positionToPieces[address];
-
     final isAddressEmpty = piece == null;
 
-    // Check if we're currently considering any position
-    if (_positionBeingConsidered == '' && isAddressEmpty) {
+    // Initial state: no position is clicked yet
+    // Case 1: clicking on empty board
+    if (!isAPositionBeingConsidered && isAddressEmpty) {
       return;
     }
 
-    if (_positionBeingConsidered == '' && !isAddressEmpty) {
+    // Case 2: clicking on a filled board
+    if (!isAPositionBeingConsidered && !isAddressEmpty) {
       considerPosition(address, piece);
+      return;
     }
 
-    final isLegalMove = positionToHighlights[address] != null;
-    if (_positionBeingConsidered != '' && isLegalMove) {
+    // Intermediary state: a position is already clicked
+    final isLegalMove = legalMoves[address] != null;
+
+    // Case 1: move is legal
+    if (isAPositionBeingConsidered && isLegalMove) {
       movePiece('$_positionBeingConsidered$address');
+      return;
     }
 
-    if (_positionBeingConsidered != '' && !isLegalMove) {
+    // Case 2: move is illegal
+    if (isAPositionBeingConsidered && !isLegalMove) {
       _positionBeingConsidered = '';
-      _positionToHighlights = {};
+      _legalMoves = {};
+
+      return;
     }
   }
 }

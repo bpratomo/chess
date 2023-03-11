@@ -14,15 +14,14 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-          child: ChangeNotifierProvider(
-        create: (context) => Positions(),
+      child: ChangeNotifierProvider(
+        create: (context) => Board(),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [Board()],
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: const [BoardRenderer()],
         ),
-      )),
+      ),
     );
   }
 }

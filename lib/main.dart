@@ -21,7 +21,6 @@ class _AppState extends State<MyApp> {
     stockfish = Stockfish();
     stream = stockfish.stdout;
     stream.listen((command) {
-      print(command);
     });
   }
 
@@ -32,7 +31,7 @@ class _AppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Stockfish example app'),
         ),
-        body: Game(),
+        body: const Game(),
       ),
     );
   }
