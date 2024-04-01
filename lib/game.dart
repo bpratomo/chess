@@ -1,5 +1,5 @@
 import 'package:chess/board.dart';
-import 'package:chess/models/positions.dart';
+import 'package:chess/models/state/game_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,11 +15,11 @@ class _GameState extends State<Game> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: ChangeNotifierProvider(
-        create: (context) => Board(),
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [BoardRenderer()],
+        create: (context) => GameState(),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [BoardRenderer()],
         ),
       ),
     );

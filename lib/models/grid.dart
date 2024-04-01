@@ -1,5 +1,5 @@
 import 'package:chess/models/piece.dart';
-import 'package:chess/models/positions.dart';
+import 'package:chess/models/state/game_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,23 +13,23 @@ class Grid extends StatelessWidget {
     print('clicking on grid $address');
   }
 
-  Color _getRenderedColor(position) {
+  Color _getRenderedColor(GameState state) {
     final defaultColor = color == 'dark' ? Colors.brown : Colors.white;
-    final isHighlighted = position.legalMoves[address] ?? false;
+    final isHighlighted = state.isLegalMove(address);
     final renderedColor = isHighlighted ? Colors.teal : defaultColor;
     return renderedColor;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Board>(builder: (context, position, child) {
-      final renderedColor = _getRenderedColor(position);
+    return Consumer<GameState>(builder: (context, state, child) {
+      final renderedColor = _getRenderedColor(state);
       return Expanded(
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(border: Border.all(), color: renderedColor),
           child: TextButton(
-            onPressed: () => position.clickHandler(address),
+            onPressed: () => state.clickHandler(address),
             child: piece?.vectorIcon ?? const Text(''),
           ),
         ),

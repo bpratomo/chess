@@ -1,5 +1,5 @@
 import 'package:chess/models/grid.dart';
-import 'package:chess/models/positions.dart';
+import 'package:chess/models/state/game_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,13 +8,13 @@ class BoardRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Board>(
+    return Consumer<GameState>(
         builder: (context, positions, child) => renderBoard(positions),
         child: const Text('building board...'));
   }
 }
 
-Widget renderBoard(Board pos) {
+Widget renderBoard(GameState state) {
   const horizontal = 'abcdefgh';
   const vertical = '87654321';
   var rowStartingColor = 'light';
@@ -29,7 +29,7 @@ Widget renderBoard(Board pos) {
 // Each loop adds a grid to construct a full row
     for (final letter in horizontal.split('')) {
       final address = '$letter$number';
-      final piece = pos.positionToPieces[address];
+      final piece = state.getPiece(address);
 
       gridList.add(Grid(piece, color, address));
 

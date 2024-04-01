@@ -39,14 +39,14 @@ class KingStrategy implements PieceStrategy {
 
   @override
   late List<Vector> vectors = [
-    vectorFactory.north,
-    vectorFactory.south,
-    vectorFactory.west,
-    vectorFactory.east,
-    vectorFactory.northWest,
-    vectorFactory.northEast,
-    vectorFactory.southWest,
-    vectorFactory.southEast,
+    vectorFactory.northOne,
+    vectorFactory.southOne,
+    vectorFactory.westOne,
+    vectorFactory.eastOne,
+    vectorFactory.northWestOne,
+    vectorFactory.northEastOne,
+    vectorFactory.southWestOne,
+    vectorFactory.southEastOne,
   ];
 }
 

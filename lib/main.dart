@@ -20,8 +20,7 @@ class _AppState extends State<MyApp> {
     super.initState();
     stockfish = Stockfish();
     stream = stockfish.stdout;
-    stream.listen((command) {
-    });
+    stream.listen((command) {});
   }
 
   @override

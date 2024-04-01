@@ -1,18 +1,17 @@
 import 'package:chess/models/movement/address.dart';
-import 'package:chess/models/piece.dart';
 import 'package:chess/models/movement/direction.dart';
+import 'package:chess/models/state/position_state.dart';
 
 extension PawnVectorFactory on VectorFactory {
   bool isDiagonalAttackLegal(
     String currentAddress,
     String nextAddress,
-    Map<String, Piece?> positionToPieces,
-    Piece pieceBeingConsidered,
+    Positions positions,
     Vector vector,
   ) {
-    final currentPiece = positionToPieces[currentAddress];
-    final targetPiece = positionToPieces[nextAddress];
-    if (targetPiece == null || currentPiece == null) return false;
+    final currentPiece = positions.getConsideredPiece();
+    final targetPiece = positions.getPiece(nextAddress);
+    if (targetPiece == null) return false;
     if (targetPiece.color == currentPiece.color) return false;
 
     return true;
@@ -21,21 +20,23 @@ extension PawnVectorFactory on VectorFactory {
   bool isTwoMoveJumpLegal(
     String currentAddress,
     String nextAddress,
-    Map<String, Piece?> positionToPieces,
-    Piece pieceBeingConsidered,
+    Positions positions,
     Vector vector,
   ) {
-    final currentPiece = positionToPieces[currentAddress];
-    final targetPiece = positionToPieces[nextAddress];
+    final currentPiece = positions.getConsideredPiece();
+    if (positions.pieceHasMoved(currentPiece.uuid)) {
+      return false;
+    }
+
+    final targetPiece = positions.getPiece(nextAddress);
 
     final goingUp = vector.verticalMovementSpeed > 0;
-    final middleAddress = goingUp
-        ? calculateNextAddress(currentAddress, 1, 0)
-        : calculateNextAddress(currentAddress, -1, 0);
+    final addressAfterJump = goingUp
+        ? calculateNextAddress(positions.considerationStartingPoint, 1, 0)
+        : calculateNextAddress(positions.considerationStartingPoint, -1, 0);
 
-    final obstructingPiece = positionToPieces[middleAddress];
+    final obstructingPiece = positions.getPiece(addressAfterJump);
 
-    if (currentPiece == null) return false;
     if (targetPiece != null) return false;
     if (obstructingPiece != null) return false;
     return true;
@@ -61,7 +62,7 @@ extension PawnVectorFactory on VectorFactory {
     return Vector(
       isTwoMoveJumpLegal,
       defaultShouldContinueCallback,
-      1,
+      0,
       0,
       2 * verticalDirection,
     );
